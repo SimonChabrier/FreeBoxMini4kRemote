@@ -44,9 +44,9 @@ export function RemoteScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
-        <Header state={state} onPressSettings={() => setSettingsVisible(true)} />
-        <ControlRow disabled={!connected} />
+        <Header state={state} disabled={!connected} onPressSettings={() => setSettingsVisible(true)} />
         <NumericPad disabled={!connected} />
+        <ControlRow disabled={!connected} />
         <DPad disabled={!connected} />
         <View style={styles.mediaAndAppsRow}>
           <MediaControls disabled={!connected} />

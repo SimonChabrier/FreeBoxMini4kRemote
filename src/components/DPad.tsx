@@ -11,9 +11,23 @@ export function DPad({ disabled }: Props) {
     <View style={styles.container}>
       <RemoteButton icon="arrow-up-bold" onPress={RemoteService.dpadUp} disabled={disabled} style={styles.arrow} accessibilityLabel="Haut" />
       <View style={styles.middleRow}>
-        <RemoteButton icon="arrow-left-bold" onPress={RemoteService.dpadLeft} disabled={disabled} style={styles.arrow} accessibilityLabel="Gauche" />
+        <RemoteButton
+          icon="arrow-left-bold"
+          onPressIn={RemoteService.dpadLeftDown}
+          onPressOut={RemoteService.dpadLeftUp}
+          disabled={disabled}
+          style={styles.arrow}
+          accessibilityLabel="Gauche"
+        />
         <RemoteButton label="OK" onPress={RemoteService.ok} disabled={disabled} style={styles.ok} />
-        <RemoteButton icon="arrow-right-bold" onPress={RemoteService.dpadRight} disabled={disabled} style={styles.arrow} accessibilityLabel="Droite" />
+        <RemoteButton
+          icon="arrow-right-bold"
+          onPressIn={RemoteService.dpadRightDown}
+          onPressOut={RemoteService.dpadRightUp}
+          disabled={disabled}
+          style={styles.arrow}
+          accessibilityLabel="Droite"
+        />
       </View>
       <RemoteButton icon="arrow-down-bold" onPress={RemoteService.dpadDown} disabled={disabled} style={styles.arrow} accessibilityLabel="Bas" />
     </View>

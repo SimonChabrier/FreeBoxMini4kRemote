@@ -35,6 +35,18 @@ function sendKey(keyCode: number) {
   safeSend(() => AuthService.getRemote()?.sendKey(keyCode, RemoteDirection.SHORT));
 }
 
+// Pour les boutons "maintenables" (dpad gauche/droite, avance/retour rapide) :
+// on signale le début et la fin de l'appui long, et c'est la TV qui gère la
+// répétition/accélération tant que le bouton reste enfoncé — un tap bref se
+// comporte alors comme un appui simple.
+function sendKeyDown(keyCode: number) {
+  safeSend(() => AuthService.getRemote()?.sendKey(keyCode, RemoteDirection.START_LONG));
+}
+
+function sendKeyUp(keyCode: number) {
+  safeSend(() => AuthService.getRemote()?.sendKey(keyCode, RemoteDirection.END_LONG));
+}
+
 function sendDigit(digit: number) {
   sendKey(DIGIT_KEY_CODES[digit]);
 }
@@ -56,6 +68,10 @@ export const RemoteService = {
   dpadDown: () => sendKey(RemoteKeyCode.KEYCODE_DPAD_DOWN),
   dpadLeft: () => sendKey(RemoteKeyCode.KEYCODE_DPAD_LEFT),
   dpadRight: () => sendKey(RemoteKeyCode.KEYCODE_DPAD_RIGHT),
+  dpadLeftDown: () => sendKeyDown(RemoteKeyCode.KEYCODE_DPAD_LEFT),
+  dpadLeftUp: () => sendKeyUp(RemoteKeyCode.KEYCODE_DPAD_LEFT),
+  dpadRightDown: () => sendKeyDown(RemoteKeyCode.KEYCODE_DPAD_RIGHT),
+  dpadRightUp: () => sendKeyUp(RemoteKeyCode.KEYCODE_DPAD_RIGHT),
   ok: () => sendKey(RemoteKeyCode.KEYCODE_DPAD_CENTER),
   volumeUp: () => sendKey(RemoteKeyCode.KEYCODE_VOLUME_UP),
   volumeDown: () => sendKey(RemoteKeyCode.KEYCODE_VOLUME_DOWN),
@@ -63,6 +79,10 @@ export const RemoteService = {
   playPause: () => sendKey(RemoteKeyCode.KEYCODE_MEDIA_PLAY_PAUSE),
   rewind: () => sendKey(RemoteKeyCode.KEYCODE_MEDIA_REWIND),
   fastForward: () => sendKey(RemoteKeyCode.KEYCODE_MEDIA_FAST_FORWARD),
+  rewindDown: () => sendKeyDown(RemoteKeyCode.KEYCODE_MEDIA_REWIND),
+  rewindUp: () => sendKeyUp(RemoteKeyCode.KEYCODE_MEDIA_REWIND),
+  fastForwardDown: () => sendKeyDown(RemoteKeyCode.KEYCODE_MEDIA_FAST_FORWARD),
+  fastForwardUp: () => sendKeyUp(RemoteKeyCode.KEYCODE_MEDIA_FAST_FORWARD),
   number: (n: number) => sendNumber(n),
   appLink: (uri: string) => safeSend(() => AuthService.getRemote()?.sendAppLink(uri)),
 };

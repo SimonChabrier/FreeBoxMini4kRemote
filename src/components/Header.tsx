@@ -2,10 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons/static';
 import { ConnectionState } from '../services/AuthService';
+import { RemoteService } from '../services/RemoteService';
 import { colors } from '../constants/theme';
 
 type Props = {
   state: ConnectionState;
+  disabled: boolean;
   onPressSettings: () => void;
 };
 
@@ -17,7 +19,7 @@ function badgeColor(state: ConnectionState): { dot: string; bg: string } {
   return { dot: colors.offline, bg: colors.offlineBg };
 }
 
-export function Header({ state, onPressSettings }: Props) {
+export function Header({ state, disabled, onPressSettings }: Props) {
   const { dot, bg } = badgeColor(state);
   const blink = useRef(new Animated.Value(1)).current;
 
@@ -38,10 +40,20 @@ export function Header({ state, onPressSettings }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.statusBadge, { backgroundColor: bg }]}>
-        <Animated.View style={[styles.dot, { backgroundColor: dot, opacity: blink }]} />
+      <View style={styles.leftGroup}>
+        <View style={[styles.statusBadge, { backgroundColor: bg }]}>
+          <Animated.View style={[styles.dot, { backgroundColor: dot, opacity: blink }]} />
+        </View>
+        <TouchableOpacity
+          onPress={RemoteService.power}
+          disabled={disabled}
+          style={[styles.iconButton, disabled && styles.disabled]}
+          accessibilityLabel="Power"
+        >
+          <MaterialDesignIcons name="power" size={24} color={colors.power} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={onPressSettings} style={styles.settingsButton} accessibilityLabel="Réglages">
+      <TouchableOpacity onPress={onPressSettings} style={styles.iconButton} accessibilityLabel="Réglages">
         <MaterialDesignIcons name="cog" size={24} color={colors.textMuted} />
       </TouchableOpacity>
     </View>
@@ -57,6 +69,10 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 16,
   },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   statusBadge: {
     width: 22,
     height: 22,
@@ -69,7 +85,11 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
   },
-  settingsButton: {
+  iconButton: {
     padding: 8,
+    marginLeft: 8,
+  },
+  disabled: {
+    opacity: 0.4,
   },
 });

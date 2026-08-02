@@ -41,7 +41,7 @@ export function NumericPad({ disabled }: Props) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginVertical: 24,
+    marginTop: 24,
   },
   row: {
     flexDirection: 'row',

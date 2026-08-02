@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   button: {
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
-    marginHorizontal: 6,
+    marginHorizontal: 5,
     backgroundColor: colors.surfaceAlt,
   },
 });
