@@ -5,6 +5,7 @@ import { ConnectionState } from '../services/AuthService';
 import { RemoteService } from '../services/RemoteService';
 import { usePoweredOn } from '../hooks/usePoweredOn';
 import { colors } from '../constants/theme';
+import { connectionIcon, BLINKING_STATES } from '../constants/connectionIcon';
 
 type Props = {
   state: ConnectionState;
@@ -12,16 +13,8 @@ type Props = {
   onPressSettings: () => void;
 };
 
-const BLINKING_STATES: ConnectionState[] = ['connecting', 'reconnecting'];
-
-function badgeColor(state: ConnectionState): { dot: string; bg: string } {
-  if (state === 'connected') return { dot: colors.online, bg: colors.onlineBg };
-  if (BLINKING_STATES.includes(state)) return { dot: colors.reconnecting, bg: colors.reconnectingBg };
-  return { dot: colors.offline, bg: colors.offlineBg };
-}
-
 export function Header({ state, disabled, onPressSettings }: Props) {
-  const { dot, bg } = badgeColor(state);
+  const { name: connectionIconName, color: connectionColor } = connectionIcon(state);
   const poweredOn = usePoweredOn();
   const blink = useRef(new Animated.Value(1)).current;
 
@@ -42,22 +35,22 @@ export function Header({ state, disabled, onPressSettings }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.leftGroup}>
-        <View style={[styles.statusBadge, { backgroundColor: bg }]}>
-          <Animated.View style={[styles.dot, { backgroundColor: dot, opacity: blink }]} />
-        </View>
-        <TouchableOpacity
-          onPress={RemoteService.power}
-          disabled={disabled}
-          style={[styles.iconButton, disabled && styles.disabled]}
-          accessibilityLabel={poweredOn ? 'Power (allumé)' : 'Power (éteint)'}
-        >
-          <MaterialDesignIcons name="power" size={24} color={poweredOn ? colors.online : colors.offline} />
+      <TouchableOpacity
+        onPress={RemoteService.power}
+        disabled={disabled}
+        style={[styles.iconButton, disabled && styles.disabled]}
+        accessibilityLabel={poweredOn ? 'Power (allumé)' : 'Power (éteint)'}
+      >
+        <MaterialDesignIcons name="power" size={24} color={poweredOn ? colors.online : colors.offline} />
+      </TouchableOpacity>
+      <View style={styles.rightGroup}>
+        <Animated.View style={{ opacity: blink }}>
+          <MaterialDesignIcons name={connectionIconName as never} size={22} color={connectionColor} />
+        </Animated.View>
+        <TouchableOpacity onPress={onPressSettings} style={styles.iconButton} accessibilityLabel="Réglages">
+          <MaterialDesignIcons name="cog" size={24} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={onPressSettings} style={styles.iconButton} accessibilityLabel="Réglages">
-        <MaterialDesignIcons name="cog" size={24} color={colors.textMuted} />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -71,21 +64,9 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 16,
   },
-  leftGroup: {
+  rightGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  statusBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
   },
   iconButton: {
     padding: 8,

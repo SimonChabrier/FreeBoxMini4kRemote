@@ -14,6 +14,7 @@ const ROWS = [
 
 export function FavoriteChannelsList() {
   const favorites = useFavorites();
+  const hasFavorites = favorites.size > 0;
 
   return (
     <View style={styles.container}>
@@ -25,7 +26,7 @@ export function FavoriteChannelsList() {
               <TouchableOpacity
                 key={value}
                 onPress={() => FavoritesService.toggle(value)}
-                style={[styles.button, { opacity: isFavorite ? 1 : 0.5 }]}
+                style={[styles.button, { opacity: !hasFavorites || isFavorite ? 1 : 0.3 }]}
                 accessibilityLabel={`Chaîne ${value}${isFavorite ? ', favorite' : ''}`}
               >
                 <Text style={styles.buttonText}>{value}</Text>

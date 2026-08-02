@@ -22,10 +22,10 @@ type Props = {
   host: string;
 };
 
-function statusLabel(state: ConnectionState): string {
+function statusLabel(state: ConnectionState, playerName?: string): string {
   switch (state) {
     case 'connected':
-      return 'Connecté';
+      return playerName ? `Connecté — ${playerName}` : 'Connecté';
     case 'connecting':
       return 'Connexion en cours…';
     case 'reconnecting':
@@ -57,6 +57,7 @@ export function SettingsModal({ visible, onClose, state, host }: Props) {
   const connected = state === 'connected';
   const pairing = state === 'pairing_required';
   const { dot: statusDot, bg: statusBg } = statusColor(state);
+  const connectedPlayerName = players.find(p => p.host === host)?.name;
 
   useEffect(() => {
     if (visible) {
@@ -120,9 +121,6 @@ export function SettingsModal({ visible, onClose, state, host }: Props) {
         <View style={styles.sheet}>
           <View style={styles.titleRow}>
             <Text style={styles.title}>Réglages</Text>
-            <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
-              <View style={[styles.dot, { backgroundColor: statusDot }]} />
-            </View>
             <View style={styles.titleSpacer} />
             <TouchableOpacity onPress={onClose} accessibilityLabel="Fermer les réglages">
               <MaterialDesignIcons name="close" size={24} color={colors.textMuted} />
@@ -130,7 +128,7 @@ export function SettingsModal({ visible, onClose, state, host }: Props) {
           </View>
 
           <View style={[styles.statusContainer, { backgroundColor: statusBg }]}>
-            <Text style={[styles.status, { color: statusDot }]}>{statusLabel(state)}</Text>
+            <Text style={[styles.status, { color: statusDot }]}>{statusLabel(state, connectedPlayerName)}</Text>
           </View>
 
           <ScrollView keyboardShouldPersistTaps="handled">
@@ -143,11 +141,11 @@ export function SettingsModal({ visible, onClose, state, host }: Props) {
                 {players.map(player => (
                   <View key={player.host} style={styles.playerRow}>
                     <TouchableOpacity style={styles.playerInfo} onPress={() => handleSelectPlayer(player)}>
-                      <View
-                        style={[
-                          styles.playerDot,
-                          { backgroundColor: player.host === host && connected ? colors.online : colors.textMuted },
-                        ]}
+                      <MaterialDesignIcons
+                        name={player.host === host && connected ? 'remote-tv' : 'remote-tv-off'}
+                        size={18}
+                        color={player.host === host && connected ? colors.online : colors.textMuted}
+                        style={styles.playerIcon}
                       />
                       <View>
                         <Text style={styles.playerName}>{player.name}</Text>
@@ -273,20 +271,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginRight: 10,
   },
-  statusBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   titleSpacer: {
     flex: 1,
-  },
-  dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
   },
   label: {
     color: colors.textMuted,
@@ -349,10 +335,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  playerDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  playerIcon: {
     marginRight: 12,
   },
   playerName: {
