@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons/static';
 import { ConnectionState } from '../services/AuthService';
 import { RemoteService } from '../services/RemoteService';
+import { usePoweredOn } from '../hooks/usePoweredOn';
 import { colors } from '../constants/theme';
 
 type Props = {
@@ -21,6 +22,7 @@ function badgeColor(state: ConnectionState): { dot: string; bg: string } {
 
 export function Header({ state, disabled, onPressSettings }: Props) {
   const { dot, bg } = badgeColor(state);
+  const poweredOn = usePoweredOn();
   const blink = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -48,9 +50,9 @@ export function Header({ state, disabled, onPressSettings }: Props) {
           onPress={RemoteService.power}
           disabled={disabled}
           style={[styles.iconButton, disabled && styles.disabled]}
-          accessibilityLabel="Power"
+          accessibilityLabel={poweredOn ? 'Power (allumé)' : 'Power (éteint)'}
         >
-          <MaterialDesignIcons name="power" size={24} color={colors.power} />
+          <MaterialDesignIcons name="power" size={24} color={poweredOn ? colors.online : colors.offline} />
         </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={onPressSettings} style={styles.iconButton} accessibilityLabel="Réglages">

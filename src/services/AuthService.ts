@@ -17,6 +17,7 @@ export type ConnectionState =
 export type SavedPlayer = { name: string; host: string };
 
 type Listener = (state: ConnectionState) => void;
+type PoweredListener = (poweredOn: boolean) => void;
 
 // Chaque Player a son propre certificat d'appairage : la clé du Keychain est
 // donc dérivée de l'IP pour ne jamais mélanger les certificats de deux
@@ -30,9 +31,26 @@ class AuthServiceImpl {
   private host: string = DEFAULT_HOST;
   private state: ConnectionState = 'disconnected';
   private listeners = new Set<Listener>();
+  private poweredOn = false;
+  private poweredListeners = new Set<PoweredListener>();
 
   getState(): ConnectionState {
     return this.state;
+  }
+
+  getPoweredOn(): boolean {
+    return this.poweredOn;
+  }
+
+  subscribePowered(listener: PoweredListener): () => void {
+    this.poweredListeners.add(listener);
+    listener(this.poweredOn);
+    return () => this.poweredListeners.delete(listener);
+  }
+
+  private setPoweredOn(next: boolean) {
+    this.poweredOn = next;
+    this.poweredListeners.forEach(listener => listener(next));
   }
 
   getHost(): string {
@@ -108,7 +126,13 @@ class AuthServiceImpl {
 
     remote.on('secret', () => this.setState('pairing_required'));
     remote.on('ready', () => this.setState('connected'));
-    remote.on('unpaired', () => this.setState('disconnected'));
+    remote.on('unpaired', () => {
+      this.setState('disconnected');
+      this.setPoweredOn(false);
+    });
+    // État réel d'allumage/veille du Player (indépendant de l'état de la
+    // connexion réseau, qui elle reste active même en veille).
+    remote.on('powered', poweredOn => this.setPoweredOn(poweredOn));
     // EventEmitter jette une exception non interceptée si 'error' est émis
     // sans listener : on doit toujours en avoir un, même minimal.
     remote.on('error', error => {
@@ -156,6 +180,7 @@ class AuthServiceImpl {
     this.remote?.stop();
     this.remote = null;
     this.setState('disconnected');
+    this.setPoweredOn(false);
   }
 }
 
